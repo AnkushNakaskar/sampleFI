@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: content-catalog
+---
+spring:
+  profiles: test
+  cloud:
+    consul:
+      enabled: false
+      retry:
+        max-attempts: 10
+        max-interval: 1000
+        multiplier: 1.1
+
+---
+spring:
+  profiles: default
+  cloud:
+    consul:
+      enabled: false
+      retry:
+        max-attempts: 10
+        max-interval: 1000
+        multiplier: 1.1
+
+
+
+---
+spring:
+  profiles: staging
+  cloud:
+    consul:
+      host: 'localhost'
+      port: 8500
+      discovery:
+        healthCheckPath: '/api/catalog-service/actuator/health'
+      retry:
+        max-interval: 1000
+        multiplier: 1.1
+        max-attempts: 10
+---
+spring:
+  profiles: staging2
+  cloud:
+    consul:
+      host: 'localhost'
+      port: 8500
+      discovery:
+        healthCheckPath: '/api/catalog-service/actuator/health'
+      retry:
+        max-interval: 1000
+        multiplier: 1.1
+        max-attempts: 10
