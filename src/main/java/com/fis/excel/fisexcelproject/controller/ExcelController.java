@@ -134,6 +134,8 @@ public class ExcelController {
 
     private void processFile() throws IOException {
         File unzip = new File("unzip");
+        File processed = new File("unzip/processed");
+        FileUtils.forceMkdir(processed);
         Collection<File> files = FileUtils.listFiles(unzip,
                 new String[]{"xls", "xlsx"}, false);
         LinkedList<File> listOfFiles = new LinkedList<>(files);
@@ -142,15 +144,15 @@ public class ExcelController {
             if (in == null) {
                 continue;
             }
-            FileUtils.copyInputStreamToFile(in, new File(file.getName()));
+            FileUtils.copyInputStreamToFile(in, new File("unzip/processed/"+file.getName()));
             log.info("Input file  are process with record ::: ");
         }
 
     }
 
     private void mergeFiles() throws Exception {
-        File unzip = new File("unzip");
-        Collection<File> files = FileUtils.listFiles(unzip,
+        File processed = new File("unzip/processed");
+        Collection<File> files = FileUtils.listFiles(processed,
                 new String[]{"xls", "xlsx"}, false);
         LinkedList<Sheet> listOfSheet = new LinkedList<>();
         LinkedList<Sheet> listOfSheetWithoutSix = new LinkedList<>();
