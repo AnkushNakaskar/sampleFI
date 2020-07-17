@@ -155,7 +155,7 @@ public class ExcelService {
 
         cell = row.createCell(4);
         if(StringUtils.isNotBlank(bean.getOracleGl())){
-            cell.setCellValue(Integer.parseInt(bean.getOracleGl()));
+            cell.setCellValue(Integer.parseInt(bean.getOracleGl().trim()));
         }else {
             cell.setCellValue(bean.getOracleGl());
         }
@@ -163,7 +163,7 @@ public class ExcelService {
 
         cell = row.createCell(5);
         if(StringUtils.isNotBlank(bean.getLineNo())){
-            cell.setCellValue(Integer.parseInt(bean.getLineNo()));
+            cell.setCellValue(Integer.parseInt(bean.getLineNo().trim()));
         }else {
             cell.setCellValue(bean.getLineNo());
         }
@@ -194,7 +194,10 @@ public class ExcelService {
         cell.setCellValue(bean.getSapProfileCentre());
 
         cell = row.createCell(16);
-        cell.setCellValue(Integer.parseInt(bean.getNewProduct()));
+        if(StringUtils.isNotBlank(bean.getNewProduct())){
+            cell.setCellValue(Integer.parseInt(bean.getNewProduct().trim()));
+        }
+
 
         cell = row.createCell(17);
         cell.setCellValue(bean.getNewCC());
@@ -204,7 +207,7 @@ public class ExcelService {
         cell.setCellValue(bean.getNewLoc());
 
         cell = row.createCell(20);
-        cell.setCellValue(Integer.parseInt(bean.getCompany()));
+        cell.setCellValue(Integer.parseInt(bean.getCompany().trim()));
 
         cell = row.createCell(21);
         cell.setCellValue(bean.getTransactionType());
