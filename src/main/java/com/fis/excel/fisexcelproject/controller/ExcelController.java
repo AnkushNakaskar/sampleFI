@@ -30,10 +30,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -154,9 +156,10 @@ public class ExcelController {
         File processed = new File("unzip/processed");
         Collection<File> files = FileUtils.listFiles(processed,
                 new String[]{"xls", "xlsx"}, false);
+        List<File> newFilesOrder = files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
         LinkedList<Sheet> listOfSheet = new LinkedList<>();
         LinkedList<Sheet> listOfSheetWithoutSix = new LinkedList<>();
-        files.stream().forEach(file -> {
+        newFilesOrder.stream().forEach(file -> {
             try {
                 System.out.println("File names : " + file.getAbsolutePath());
                 InputStream inputStream = new FileInputStream(file);
