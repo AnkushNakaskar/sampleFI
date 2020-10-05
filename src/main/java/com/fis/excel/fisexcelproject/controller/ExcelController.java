@@ -6,9 +6,13 @@ import com.fis.excel.fisexcelproject.service.ExcelService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -56,7 +61,7 @@ public class ExcelController {
 
 
     @PostMapping(value = "/upload/description")
-    public ResponseEntity<List<InputBean>> uploadDescriptionBulkUploadTemplate(@RequestParam("descriptionBulkUploadFile") MultipartFile descriptionBulkUploadFile, @RequestParam("userName") String userName) {
+    public ResponseEntity<List<InputBean>> uploadDescriptionBulkUploadTemplate(@RequestParam("descriptionBulkUploadFile") MultipartFile descriptionBulkUploadFile) {
         List<InputBean> responseMessage = new LinkedList<>();
         HttpStatus responseStatus;
         try {
@@ -165,6 +170,7 @@ public class ExcelController {
                 InputStream inputStream = new FileInputStream(file);
                 XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
                 Sheet sheet = workbook.getSheet(ExcelService.DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME);
+
                 if (sheet != null)
                     listOfSheet.add(sheet);
                 Sheet sheetWithoutSix = workbook.getSheet(ExcelService.DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_SIX);
@@ -184,7 +190,7 @@ public class ExcelController {
         copySheets.mergeExcelFilesSheet(workbook, listOfSheet);
         copySheets.mergeExcelFilesWithoutSix(workbook, listOfSheetWithoutSix);
 
-
+//        process(workbook);
         FileOutputStream out = new FileOutputStream(
                 new File("finalOutputSheet.xlsx"));
         workbook.write(out);
@@ -192,7 +198,55 @@ public class ExcelController {
         System.out.println("finalsheet.xlsx written successfully");
 
 
+        File file =new File("finalOutputSheet.xlsx");
+        shift(file);
+
+
     }
+
+    private void shift(File f){
+        File F=f;
+        XSSFWorkbook wb = null;
+        XSSFSheet sheet=null;
+        try{
+            FileInputStream is=new FileInputStream(F);
+
+            wb= new XSSFWorkbook(is);
+            sheet = wb.getSheetAt(0);
+            for(int i = 0; i < sheet.getLastRowNum(); i++){
+                boolean isRowEmpty=false;
+                if(sheet.getRow(i)==null){
+                    sheet.shiftRows(i + 1, sheet.getLastRowNum(), -1);
+                    i--;
+                    continue;
+                }
+                for(int j =0; j<sheet.getRow(i).getLastCellNum();j++){
+                    if(sheet.getRow(i).getCell(j).toString().trim().equals("")){
+                        isRowEmpty=true;
+                    }else {
+                        isRowEmpty=false;
+                        break;
+                    }
+                }
+                if(isRowEmpty==true){
+                    sheet.shiftRows(i + 1, sheet.getLastRowNum(), -1);
+                    i--;
+                }
+            }
+
+            FileOutputStream fileOut = new FileOutputStream("juni1.xlsx");
+            wb.write(fileOut);
+            fileOut.close();
+            //Here I want to write the new update file without empty rows!
+        }
+        catch(Exception e){
+            System.out.print("SERRO "+e);
+        }
+
+    }
+
+
+
 
     private void unZipFiles(File zipFile) throws IOException {
 
@@ -226,31 +280,27 @@ public class ExcelController {
     }
 
 
-    private boolean checkIfRowIsEmpty(Row row) {
-        if (row == null) {
-            return true;
-        }
-        if (row.getLastCellNum() <= 0) {
-            return true;
-        }
-        for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
-            Cell cell = row.getCell(c);
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK)
-                return false;
-        }
-        return true;
-    }
 
-    public static void removeRow(Sheet sheet, int rowIndex) {
-        int lastRowNum = sheet.getLastRowNum();
-        if (rowIndex >= 0 && rowIndex < lastRowNum) {
-            sheet.shiftRows(rowIndex + 1, lastRowNum, -1);
+
+
+    @PostMapping(value = "/upload/removeGaps")
+    public ResponseEntity<InputStreamResource> uploadDescriptionBulkUploadTemplate() {
+        try{
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=" + DESCRIPTION_BULK_UPLOAD_DOCUMENT_NAME);
+
+            File file =new File("finalOutputSheet.xlsx");
+            shift(file);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .body(new InputStreamResource(in));
+        } catch (Exception exception) {
+            log.error("Exception in downloading the sample template for description bulk upload is :: ", exception);
         }
-        if (rowIndex == lastRowNum) {
-            Row removingRow = sheet.getRow(rowIndex);
-            if (removingRow != null) {
-                sheet.removeRow(removingRow);
-            }
-        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
 }

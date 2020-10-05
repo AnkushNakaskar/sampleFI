@@ -300,7 +300,7 @@ public class ExcelService {
                 inputBean.setTransactionType("2169 INV");
             }
             if (inputBean.getDrCr().contains("CR")) {
-                inputBean.setPaymentTerm("NET30");
+                inputBean.setPaymentTerm("NET 30");
             } else {
                 inputBean.setPaymentTerm("");
                 inputBean.setValue("-" + inputBean.getValue());
@@ -311,16 +311,16 @@ public class ExcelService {
                 inputBean.setNewLoc(inputBean.getNewLoc().replaceFirst("L", ""));
             }
 
-            if(inputBean.getSapGL().startsWith("201") && inputBean.getDescription().contains("CGST")){
+            if((inputBean.getSapGL().startsWith("201") || inputBean.getSapGL().startsWith("208375")) && inputBean.getDescription().contains("CGST")){
                 inputBean.setOracleGl("208375");
                 inputBean.setNewProduct("500000");
-            }else if (inputBean.getSapGL().startsWith("201") && inputBean.getDescription().contains("SGST")){
+            }else if ((inputBean.getSapGL().startsWith("201") || inputBean.getSapGL().startsWith("208372")) && inputBean.getDescription().contains("SGST")){
                 inputBean.setOracleGl("208372");
                 inputBean.setNewProduct("500000");
-            }else if (inputBean.getSapGL().startsWith("201") && inputBean.getDescription().contains("IGST")){
+            }else if ((inputBean.getSapGL().startsWith("201") || inputBean.getSapGL().startsWith("208378")) && inputBean.getDescription().contains("IGST")){
                 inputBean.setOracleGl("208378");
                 inputBean.setNewProduct("500000");
-            }else if (inputBean.getSapGL().startsWith("201") && inputBean.getDescription().contains("UTGST")){
+            }else if ((inputBean.getSapGL().startsWith("201") || inputBean.getSapGL().startsWith("208382")) && inputBean.getDescription().contains("UTGST")){
                 inputBean.setOracleGl("208382");
                 inputBean.setNewProduct("500000");
             }
