@@ -305,24 +305,29 @@ public class ExcelService {
                 inputBean.setPaymentTerm("");
                 inputBean.setValue("-" + inputBean.getValue());
             }
-            if (inputBean.getSapGL().startsWith("201")) {
-                inputBean.setNewLoc("0000");
-            } else {
-                inputBean.setNewLoc(inputBean.getNewLoc().replaceFirst("L", ""));
-            }
+
 
             if((inputBean.getSapGL().startsWith("201") || inputBean.getSapGL().startsWith("208375")) && inputBean.getDescription().contains("CGST")){
                 inputBean.setOracleGl("208375");
                 inputBean.setNewProduct("500000");
+                inputBean.setNewLoc("0000");
             }else if ((inputBean.getSapGL().startsWith("201") || inputBean.getSapGL().startsWith("208372")) && inputBean.getDescription().contains("SGST")){
                 inputBean.setOracleGl("208372");
                 inputBean.setNewProduct("500000");
+                inputBean.setNewLoc("0000");
             }else if ((inputBean.getSapGL().startsWith("201") || inputBean.getSapGL().startsWith("208378")) && inputBean.getDescription().contains("IGST")){
                 inputBean.setOracleGl("208378");
                 inputBean.setNewProduct("500000");
             }else if ((inputBean.getSapGL().startsWith("201") || inputBean.getSapGL().startsWith("208382")) && inputBean.getDescription().contains("UTGST")){
                 inputBean.setOracleGl("208382");
                 inputBean.setNewProduct("500000");
+                inputBean.setNewLoc("0000");
+            }
+
+            if (inputBean.getSapGL().startsWith("201")) {
+                inputBean.setNewLoc("0000");
+            } else {
+                inputBean.setNewLoc(inputBean.getNewLoc().replaceFirst("L", ""));
             }
 
             inputBean.setReferenceNumber(StringUtils.left(inputBean.getReferenceNumber(), 25));

@@ -200,7 +200,53 @@ public class ExcelController {
 
         File file =new File("finalOutputSheet.xlsx");
         shift(file);
+        File file1 =new File("juni1.xlsx");
+        shiftnew(file1);
 
+
+    }
+
+    private void shiftnew(File f) {
+
+        File F=f;
+        XSSFWorkbook wb = null;
+        XSSFSheet sheet=null;
+        try{
+
+            FileInputStream is=new FileInputStream(F);
+
+            wb= new XSSFWorkbook(is);
+            sheet = wb.getSheetAt(1);
+            for(int i = 0; i < sheet.getLastRowNum(); i++){
+                boolean isRowEmpty=false;
+                if(sheet.getRow(i)==null){
+                    sheet.shiftRows(i + 1, sheet.getLastRowNum(), -1);
+                    i--;
+                    continue;
+                }
+                for(int j =0; j<sheet.getRow(i).getLastCellNum();j++){
+                    if(sheet.getRow(i).getCell(j).toString().trim().equals("")){
+                        isRowEmpty=true;
+                    }else {
+                        isRowEmpty=false;
+                        break;
+                    }
+                }
+                if(isRowEmpty==true){
+                    sheet.shiftRows(i + 1, sheet.getLastRowNum(), -1);
+                    i--;
+                }
+            }
+
+            FileOutputStream fileOut = new FileOutputStream("newjuni1.xlsx");
+            wb.write(fileOut);
+            fileOut.close();
+            //Here I want to write the new update file without empty rows!
+        }
+        catch(Exception e){
+            System.out.print("SERRO "+e);
+            e.printStackTrace();
+        }
 
     }
 
@@ -209,6 +255,7 @@ public class ExcelController {
         XSSFWorkbook wb = null;
         XSSFSheet sheet=null;
         try{
+
             FileInputStream is=new FileInputStream(F);
 
             wb= new XSSFWorkbook(is);
