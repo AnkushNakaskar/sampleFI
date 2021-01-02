@@ -22,6 +22,7 @@ server:
     basedir: access
   servlet:
     contextPath:  /api/fis
+  port: 9090
 
 project:
   group: core

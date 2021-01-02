@@ -37,6 +37,7 @@ public class ExcelService {
 
     public static final String DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME = "Line Item";
     public static final String DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_SIX=   "Header";
+    public static final String DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_WEBADI=   "WEB ADI";
     private static final String CUSTOMER_IND = "Customer IND";
     private static final String ORACLE_GL = "Oracle GL";
     private static final String LINE_NO = "Line No";
@@ -58,7 +59,13 @@ public class ExcelService {
                      "New Cust","New LOC",COMPANY,TRANSACTION_TYPE, "Document Header", "Reference Number",
                     "Line Item Text Part 1", "Line Item Text Part 2"
             };
-
+    private static final String[] output_web_adi_column_names =
+            {"Upl", "SOURCE","INV DATE", "INV NUM","GL DATE","CURRENCY", "PAYMENT TERMS",
+                    "TRANSACTION TYPE", "CUST NUMBER","LINE NUM", "BILL DESCRIPTION", "QUANTITY", "UNIT PRICE"
+                    , "INV AMOUNT", "COMPANY", "PRODUCT", "COST CENTER", "ACCOUNT",
+                    "INTERCO","RUF","LOCATION","OPERATING UNIT", "RATE TYPE", "CONVERSION RATE",
+                    "CONVERSION DATE", "LTFF CONTEXT","LTFF ATTRIBUTE1","LTFF ATTRIBUTE2","LTFF ATTRIBUTE3","LTFF ATTRIBUTE4","LTFF ATTRIBUTE5","LTFF ATTRIBUTE6","LTFF ATTRIBUTE7","LTFF ATTRIBUTE8","LTFF ATTRIBUTE9","LTFF ATTRIBUTE10","LINE DFF CONTEXT","LINE DFF ATTRIBUTE1","LINE DFF ATTRIBUTE2","LINE DFF ATTRIBUTE3","LINE DFF ATTRIBUTE4","LINE DFF ATTRIBUTE5","LINE DFF ATTRIBUTE6","LINE DFF ATTRIBUTE7","LINE DFF ATTRIBUTE8","LINE DFF ATTRIBUTE9","LINE DFF ATTRIBUTE10","","","Messages"
+            };
     private static CellStyle createHeaderCellStyle(XSSFWorkbook workbook) {
         // Create a Font for styling header cells
         Font headerFont = workbook.createFont();
@@ -90,6 +97,11 @@ public class ExcelService {
                 sheetsix = workbook.createSheet(DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_SIX);
             }
 
+            Sheet webadi = workbook.getSheet(DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_WEBADI);
+            if (webadi == null) {
+                webadi = workbook.createSheet(DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_WEBADI);
+            }
+
             List<InputBean> inputBeans = processInBackground(descriptionBulkFile);
             // Create a Row
             List<InputBean> inputBeanWithExactSix = inputBeans.stream().filter(bean -> {
@@ -110,6 +122,7 @@ public class ExcelService {
 
             createASheet(headerCellStyle, sheet, inputBeanWithExactSix);
             createASheet(headerCellStyle, sheetsix, inputBeanWithNotExactSix);
+            createASheet1(headerCellStyle, webadi, inputBeanWithExactSix);
 
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
@@ -134,6 +147,26 @@ public class ExcelService {
         {
             Row row = sheet.createRow(rownum++);
             createList(bean, row);
+
+        }
+        sheet.createRow(rownum++);
+        sheet.createRow(rownum++);
+    }
+
+    private void createASheet1(CellStyle headerCellStyle, Sheet sheet, List<InputBean> inputBeans) {
+        Row headerRow = sheet.createRow(0);
+
+        for (int column = 0; column < output_web_adi_column_names.length; column++) {
+            Cell cell = headerRow.createCell(column);
+            cell.setCellValue(output_web_adi_column_names[column]);
+            cell.setCellStyle(headerCellStyle);
+        }
+        int rownum = 1;
+
+        for (InputBean bean : inputBeans)
+        {
+            Row row = sheet.createRow(rownum++);
+            createList1(bean, row);
 
         }
         sheet.createRow(rownum++);
@@ -223,6 +256,98 @@ public class ExcelService {
 
         cell = row.createCell(25);
         cell.setCellValue(bean.getLineTextPart2());
+
+    }
+
+    private void createList1(InputBean bean, Row row) {
+        Cell cell = row.createCell(0);
+        cell.setCellValue("");
+
+        cell = row.createCell(1);
+        cell.setCellValue("TALLY MANUAL BILLING ADI");
+
+        cell = row.createCell(2);
+        cell.setCellValue(bean.getInvoiceDate());
+
+        cell = row.createCell(3);
+        cell.setCellValue(bean.getInvoiceNumber());
+
+        cell = row.createCell(4);
+        cell.setCellValue(bean.getGlDate());
+
+
+
+        cell = row.createCell(5);
+        cell.setCellValue("INR");
+
+
+        cell = row.createCell(6);
+        cell.setCellValue(bean.getPaymentTerm());
+        cell = row.createCell(7);
+        cell.setCellValue(bean.getTransactionType());
+        cell = row.createCell(8);
+        cell.setCellValue(bean.getCustomerInd());
+        cell = row.createCell(9);
+        cell.setCellValue(bean.getLineNo());
+        cell = row.createCell(10);
+        cell.setCellValue(bean.getDescription());
+        cell = row.createCell(11);
+        cell.setCellValue("");
+        cell = row.createCell(12);
+        cell.setCellValue("");
+
+        cell = row.createCell(13);
+        BigDecimal bd = new BigDecimal(bean.getValue()).setScale(2, RoundingMode.HALF_UP);
+        cell.setCellValue(bd.doubleValue());
+
+
+        cell = row.createCell(14);
+        cell.setCellValue(bean.getCompany());
+        cell = row.createCell(15);
+        cell.setCellValue(bean.getNewProduct());
+
+        cell = row.createCell(16);
+        cell.setCellValue("0000");
+
+
+
+
+        cell = row.createCell(17);
+        if(StringUtils.isNotBlank(bean.getOracleGl())){
+            cell.setCellValue(Integer.parseInt(bean.getOracleGl().trim()));
+        }else {
+            cell.setCellValue(bean.getOracleGl());
+        }
+
+        cell = row.createCell(18);
+        cell.setCellValue("0000");
+        cell = row.createCell(19);
+        cell.setCellValue("0000");
+
+        cell = row.createCell(20);
+        cell.setCellValue(bean.getNewLoc());
+
+        cell = row.createCell(21);
+        cell.setCellValue("FIS India INR 2169 Operating Unit");
+        for(int i=1;i<=14;i++){
+            cell = row.createCell(21+i);
+            cell.setCellValue("");
+        }
+
+        cell = row.createCell(36);
+        cell.setCellValue(bean.getReferenceNumber());
+
+        cell = row.createCell(37);
+        cell.setCellValue(bean.getLineTextPart1());
+
+        cell = row.createCell(38);
+        cell.setCellValue(bean.getLineTextPart2());
+
+
+        for(int i=1;i<=11;i++){
+            cell = row.createCell(38+i);
+            cell.setCellValue("");
+        }
 
     }
 

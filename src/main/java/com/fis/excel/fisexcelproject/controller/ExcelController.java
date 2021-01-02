@@ -164,6 +164,7 @@ public class ExcelController {
         List<File> newFilesOrder = files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
         LinkedList<Sheet> listOfSheet = new LinkedList<>();
         LinkedList<Sheet> listOfSheetWithoutSix = new LinkedList<>();
+        LinkedList<Sheet> listOfSheetadi = new LinkedList<>();
         newFilesOrder.stream().forEach(file -> {
             try {
                 System.out.println("File names : " + file.getAbsolutePath());
@@ -177,6 +178,10 @@ public class ExcelController {
                 if (sheetWithoutSix != null)
                     listOfSheetWithoutSix.add(sheetWithoutSix);
 
+                Sheet sheetadi = workbook.getSheet(ExcelService.DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_WEBADI);
+                if (sheetadi != null)
+                    listOfSheetadi.add(sheetadi);
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -189,6 +194,7 @@ public class ExcelController {
         //InputStream
         copySheets.mergeExcelFilesSheet(workbook, listOfSheet);
         copySheets.mergeExcelFilesWithoutSix(workbook, listOfSheetWithoutSix);
+        copySheets.mergeExcelFilesadi(workbook, listOfSheetadi);
 
 //        process(workbook);
         FileOutputStream out = new FileOutputStream(
@@ -203,8 +209,60 @@ public class ExcelController {
         File file1 =new File("juni1.xlsx");
         shiftnew(file1);
 
+        File fileFinal1 =new File("newjuni1.xlsx");
+        shiftnewNew(fileFinal1);
+
+        Thread.sleep(1000);
+        FileUtils.forceDelete(file1);
+        FileUtils.forceDelete(fileFinal1);
+
 
     }
+
+    private void shiftnewNew(File f) {
+
+        File F=f;
+        XSSFWorkbook wb = null;
+        XSSFSheet sheet=null;
+        try{
+
+            FileInputStream is=new FileInputStream(F);
+
+            wb= new XSSFWorkbook(is);
+            sheet = wb.getSheetAt(2);
+            for(int i = 0; i < sheet.getLastRowNum(); i++){
+                boolean isRowEmpty=false;
+                if(sheet.getRow(i)==null){
+                    sheet.shiftRows(i + 1, sheet.getLastRowNum(), -1);
+                    i--;
+                    continue;
+                }
+                for(int j =0; j<sheet.getRow(i).getLastCellNum();j++){
+                    if(sheet.getRow(i).getCell(j).toString().trim().equals("")){
+                        isRowEmpty=true;
+                    }else {
+                        isRowEmpty=false;
+                        break;
+                    }
+                }
+                if(isRowEmpty==true){
+                    sheet.shiftRows(i + 1, sheet.getLastRowNum(), -1);
+                    i--;
+                }
+            }
+
+            FileOutputStream fileOut = new FileOutputStream("newFinaljuni1.xlsx");
+            wb.write(fileOut);
+            fileOut.close();
+            //Here I want to write the new update file without empty rows!
+        }
+        catch(Exception e){
+            System.out.print("SERRO "+e);
+            e.printStackTrace();
+        }
+
+    }
+
 
     private void shiftnew(File f) {
 

@@ -26,6 +26,18 @@ import java.util.TreeSet;
 @Component
 public class CopySheets {
 
+    public Workbook mergeExcelFilesadi(Workbook book, List<Sheet> sheets) throws IOException, InvalidFormatException {
+
+        for (Sheet sheet : sheets) {
+            Sheet inputSheet = book.getSheet(ExcelService.DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_WEBADI);
+            if (inputSheet == null) {
+                inputSheet = book.createSheet(ExcelService.DESCRIPTION_BULK_UPLOAD_DOCUMENT_SHEET_NAME_WEBADI);
+            }
+            copySheets(inputSheet, sheet);
+        }
+        return book;
+    }
+
     public Workbook mergeExcelFilesWithoutSix(Workbook book, List<Sheet> sheets) throws IOException, InvalidFormatException {
 
         for (Sheet sheet : sheets) {
