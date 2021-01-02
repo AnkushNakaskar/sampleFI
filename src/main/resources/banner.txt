@@ -1,2 +1,0 @@
-application.title=Content-Catalog
-application.version=1.0.0
